@@ -1,17 +1,16 @@
 import pygame
 import random
+import os
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
 pygame.display.set_caption('Minecraft Ultimate HD Deluxe Definitive Edition')
 
 #Textures
-textures = {
-    "grass": pygame.transform.scale(pygame.image.load("Grass.png").convert(), (32, 32)),
-    "dirt": pygame.transform.scale(pygame.image.load("Dirt.png").convert(), (32, 32)),
-    "stone": pygame.transform.scale(pygame.image.load("Stone.png").convert(), (32, 32)),
-    "coal": pygame.transform.scale(pygame.image.load("Coal.png").convert(), (32, 32))
-}
+textures = {}
+
+for file in os.listdir(str(os.getcwd()) + "\Textures"):
+    textures[file.replace(".png", "").lower()] = pygame.transform.scale(pygame.image.load(str(os.getcwd()) + "\Textures\\" + file).convert(), (32, 32))
 
 #Map
 def generate_map(width, height):

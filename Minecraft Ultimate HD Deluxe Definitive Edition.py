@@ -1,6 +1,4 @@
 #Imports
-from cgitb import text
-from turtle import screensize, width
 import pygame
 import random
 import os

@@ -11,7 +11,7 @@ textures = {}
 for file in os.listdir(str(os.getcwd()) + "\Textures"):
     textures[file.replace(".png", "").lower()] = pygame.transform.scale(pygame.image.load(str(os.getcwd()) + "\Textures\\" + file).convert(), (32, 32))
 
-#Map
+#Carte
 class map:
     def __init__(self, width, height):
         self.width = width
@@ -22,10 +22,10 @@ class map:
         self.generate()
 
     def generate(self):
-        #Generate first two layers
+        #Génère les deux premières couches
         self.tiles = [["grass" for _ in range(self.width)], ["dirt" for _ in range(self.width)]]
-            
-        #Map generation
+        
+        #Génère le reste
         for y in range(2, self.height):
             if y < 4:
                 self.tiles.append([random.choice(["dirt", "stone"]) for _ in range(self.width)])
@@ -35,17 +35,22 @@ class map:
                 self.tiles.append([random.choice(["coal", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]) for _ in range(self.width)])
 
     def render(self):
-        #Display sky
+        #Affiche le ciel
         screen.fill((145, 226, 255))
 
-        #Map render
+        #Affiche chaques tuiles
         for y in range(0, len(self.tiles)):
             for tile in range(0, len(self.tiles[y])):
                 screen.blit(textures[self.tiles[y][tile]], (tile * 32, y * 32 + 8 * 32))
 
         pygame.display.flip()
 
-#Run the game
+#Joueur
+class player:
+    def __init__():
+        pass
+
+#Lance le jeu
 level = map(32, 32)
 level.render()
 

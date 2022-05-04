@@ -1,3 +1,4 @@
+from matplotlib.pyplot import text
 import pygame
 import random
 import os
@@ -8,9 +9,14 @@ pygame.display.set_caption('Minecraft Ultimate HD Deluxe Definitive Edition')
 
 #Textures
 textures = {}
-for file in os.listdir(str(os.getcwd()) + "\Textures"):
-    if file != "Thumbs.db":
-        textures[file.replace(".png", "").lower()] = pygame.transform.scale(pygame.image.load(str(os.getcwd()) + "\Textures\\" + file).convert(), (32, 32))
+for file in os.listdir("{}\Textures".format(os.getcwd())):
+    if file.endswith(".png"):
+        file_name = file.replace(".png", "").lower()
+        
+        path = "{}\Textures\{}".format(os.getcwd(), file)
+        image = pygame.image.load(path)
+
+        textures[file_name] = image
 
 #Carte
 class map:
@@ -48,9 +54,11 @@ class map:
 
 #Joueur
 class player:
-    def __init__():
-        pass
+    def __init__(self):
+        self.position = (0, 0)
 
+
+    
 #Lance le jeu
 level = map(32, 32)
 level.render()

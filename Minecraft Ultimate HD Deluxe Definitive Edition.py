@@ -9,7 +9,8 @@ pygame.display.set_caption('Minecraft Ultimate HD Deluxe Definitive Edition')
 #Textures
 textures = {}
 for file in os.listdir(str(os.getcwd()) + "\Textures"):
-    textures[file.replace(".png", "").lower()] = pygame.transform.scale(pygame.image.load(str(os.getcwd()) + "\Textures\\" + file).convert(), (32, 32))
+    if file != "Thumbs.db":
+        textures[file.replace(".png", "").lower()] = pygame.transform.scale(pygame.image.load(str(os.getcwd()) + "\Textures\\" + file).convert(), (32, 32))
 
 #Carte
 class map:

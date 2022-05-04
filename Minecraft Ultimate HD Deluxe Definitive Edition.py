@@ -3,7 +3,7 @@ import pygame
 import random
 import os
 
-#Initialization
+#Initialisation
 pygame.init()
 screen = pygame.display.set_mode((1024, 832))
 pygame.display.set_caption('Minecraft Ultimate HD Deluxe Definitive Edition')

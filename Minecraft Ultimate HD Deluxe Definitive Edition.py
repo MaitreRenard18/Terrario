@@ -1,4 +1,3 @@
-from matplotlib.pyplot import text
 import pygame
 import random
 import os
@@ -57,8 +56,6 @@ class player:
     def __init__(self):
         self.position = (0, 0)
 
-
-    
 #Lance le jeu
 level = map(32, 32)
 level.render()

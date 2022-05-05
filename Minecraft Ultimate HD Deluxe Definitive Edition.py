@@ -5,7 +5,7 @@ import os
 
 #Initialisation
 pygame.init()
-screen = pygame.display.set_mode((1024, 832))
+screen = pygame.display.set_mode((1056, 832))
 pygame.display.set_caption('Minecraft Ultimate HD Deluxe Definitive Edition')
 
 #Textures
@@ -64,8 +64,6 @@ class map:
                     texture = textures[self.tiles[x_index][y_index]]
                     screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
 
-        pygame.display.flip()
-
 #Joueur
 class player:
     def __init__(self):
@@ -74,7 +72,17 @@ class player:
 
         self.ticker = 0
 
+    def get_camera_offset(self):
+        screensize = screen.get_size()
+        x = self.position[0] - (screensize[0] // 32) // 2
+        y = self.position[1] - (screensize[1] // 32) // 2
+
+        return (x, y)
+
     def tick(self):
+        screensize = screen.get_size()
+        screen.blit(textures["drill_base"] , (screensize[0] // 2 - 16, screensize[1] // 2))
+        
         if self.ticker > 0:
             self.ticker -= 1
             return
@@ -101,14 +109,17 @@ class player:
             self.ticker = 16 * (1 / self.speed)
             return
 
+        
+
 #Game loop
 level = map(512, 512)
 drill = player()
 
 running = True
 while running:
+    level.render(drill.get_camera_offset())
     drill.tick()
-    level.render(drill.position)
+    pygame.display.flip()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

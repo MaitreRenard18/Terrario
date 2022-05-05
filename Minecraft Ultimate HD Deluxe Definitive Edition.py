@@ -66,11 +66,13 @@ class map:
 
 #Joueur
 class player:
-    def __init__(self):
-        self.position = (0, 0)
+    def __init__(self, map):
+        self.position = (map.width // 2, -1)
         self.speed = 1
 
         self.ticker = 0
+        self.map = map
+        self.texture = "drill_base_right"
 
     def get_camera_offset(self):
         screensize = screen.get_size()
@@ -81,8 +83,10 @@ class player:
 
     def tick(self):
         screensize = screen.get_size()
-        screen.blit(textures["drill_base"] , (screensize[0] // 2 - 16, screensize[1] // 2))
+        screen.blit(textures[self.texture] , (screensize[0] // 2 - 16, screensize[1] // 2))
 
+        self.map.tiles[self.position[0]][self.position[1]] = "cave"
+        
         if self.ticker > 0:
             self.ticker -= 1
             return
@@ -91,29 +95,33 @@ class player:
 
         if keys[pygame.K_RIGHT]:
             self.position = (self.position[0] + 1, self.position[1])
-            self.ticker = 16 * (1 / self.speed)
+            self.ticker = 20 * (1 / self.speed)
+            self.texture = "drill_base_right"
             return
 
         if keys[pygame.K_LEFT]:
             self.position = (self.position[0] - 1, self.position[1])
-            self.ticker = 16 * (1 / self.speed)
+            self.ticker = 20 * (1 / self.speed)
+            self.texture = "drill_base_left"
             return
 
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] and self.position[1] > -1 :
             self.position = (self.position[0], self.position[1] - 1)
-            self.ticker = 16 * (1 / self.speed)
+            self.ticker = 20 * (1 / self.speed)
+            self.texture = "drill_base_up"
             return
 
         if keys[pygame.K_DOWN]:
             self.position = (self.position[0], self.position[1] + 1)
-            self.ticker = 16 * (1 / self.speed)
+            self.ticker = 20 * (1 / self.speed)
+            self.texture = "drill_base_down"
             return
 
         
 
 #Game loop
 level = map(512, 512)
-drill = player()
+drill = player(level)
 
 running = True
 while running:

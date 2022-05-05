@@ -82,7 +82,7 @@ class player:
     def tick(self):
         screensize = screen.get_size()
         screen.blit(textures["drill_base"] , (screensize[0] // 2 - 16, screensize[1] // 2))
-        
+
         if self.ticker > 0:
             self.ticker -= 1
             return

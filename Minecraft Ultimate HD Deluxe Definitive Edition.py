@@ -68,7 +68,7 @@ class map:
 class player:
     def __init__(self, map):
         self.position = (map.width // 2, -1)
-        self.speed = 0.75
+        self.speed = 1
 
         self.ticker = 0
         self.map = map
@@ -95,36 +95,40 @@ class player:
 
         if keys[pygame.K_RIGHT]:
             self.position = (self.position[0] + 1, self.position[1])
-            self.ticker = 20 * (1 / self.speed)
+            self.ticker = 15 * (1 / self.speed)
             self.texture = "drill_base_right"
             return
 
         if keys[pygame.K_LEFT]:
             self.position = (self.position[0] - 1, self.position[1])
-            self.ticker = 20 * (1 / self.speed)
+            self.ticker = 15 * (1 / self.speed)
             self.texture = "drill_base_left"
             return
 
         if keys[pygame.K_UP] and self.position[1] > -1:
             self.position = (self.position[0], self.position[1] - 1)
-            self.ticker = 20 * (1 / self.speed)
+            self.ticker = 15 * (1 / self.speed)
             self.texture = "drill_base_up"
             return
 
         if keys[pygame.K_DOWN]:
             self.position = (self.position[0], self.position[1] + 1)
-            self.ticker = 20 * (1 / self.speed)
+            self.ticker = 15 * (1 / self.speed)
             self.texture = "drill_base_down"
             return
 
         
 
 #Game loop
+clock = pygame.time.Clock()
+
 level = map(512, 512)
 drill = player(level)
 
 running = True
 while running:
+    clock.tick(60)
+
     level.render(drill.get_camera_offset())
     drill.tick()
     pygame.display.flip()

@@ -70,7 +70,7 @@ class player:
     def __init__(self, map):
         self.position = (map.width // 2, -1)
         self.speed = 1
-
+        
         self.map = map
         self.texture = "drill_base_right"
 
@@ -88,7 +88,7 @@ class player:
         self.map.tiles[floor(self.position[0])][floor(self.position[1])] = "cave"
 
         keys = pygame.key.get_pressed()
-
+        
         if keys[pygame.K_RIGHT]:
             self.position = (self.position[0] + self.speed * .1, self.position[1])
             self.texture = "drill_base_right"
@@ -108,8 +108,6 @@ class player:
             self.position = (self.position[0], self.position[1] + self.speed * .1)
             self.texture = "drill_base_down"
             return
-
-        
 
 #Game loop
 clock = pygame.time.Clock()

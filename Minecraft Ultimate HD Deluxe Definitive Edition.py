@@ -1,4 +1,5 @@
 #Imports
+from math import floor
 import pygame
 import random
 import os
@@ -70,14 +71,13 @@ class player:
         self.position = (map.width // 2, -1)
         self.speed = 1
 
-        self.ticker = 0
         self.map = map
         self.texture = "drill_base_right"
 
     def get_camera_offset(self):
         screensize = screen.get_size()
-        x = self.position[0] - (screensize[0] // 32) // 2
-        y = self.position[1] - (screensize[1] // 32) // 2
+        x = floor(self.position[0]) - (screensize[0] // 32) // 2
+        y = floor(self.position[1]) - (screensize[1] // 32) // 2
 
         return (x, y)
 
@@ -85,35 +85,27 @@ class player:
         screensize = screen.get_size()
         screen.blit(textures[self.texture] , (screensize[0] // 2 - 16, screensize[1] // 2))
 
-        self.map.tiles[self.position[0]][self.position[1]] = "cave"
-
-        if self.ticker > 0:
-            self.ticker -= 1
-            return
+        self.map.tiles[floor(self.position[0])][floor(self.position[1])] = "cave"
 
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
-            self.position = (self.position[0] + 1, self.position[1])
-            self.ticker = 15 * (1 / self.speed)
+            self.position = (self.position[0] + self.speed * .1, self.position[1])
             self.texture = "drill_base_right"
             return
 
         if keys[pygame.K_LEFT]:
-            self.position = (self.position[0] - 1, self.position[1])
-            self.ticker = 15 * (1 / self.speed)
+            self.position = (self.position[0] - self.speed * .1, self.position[1])
             self.texture = "drill_base_left"
             return
 
         if keys[pygame.K_UP] and self.position[1] > -1:
-            self.position = (self.position[0], self.position[1] - 1)
-            self.ticker = 15 * (1 / self.speed)
+            self.position = (self.position[0], self.position[1] - self.speed * .1)
             self.texture = "drill_base_up"
             return
 
         if keys[pygame.K_DOWN]:
-            self.position = (self.position[0], self.position[1] + 1)
-            self.ticker = 15 * (1 / self.speed)
+            self.position = (self.position[0], self.position[1] + self.speed * .1)
             self.texture = "drill_base_down"
             return
 

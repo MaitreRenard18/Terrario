@@ -49,13 +49,14 @@ class map:
                     self.tiles[x].append(random.choice(choices))
         
         for _ in range(128):
-            self.dig((random.randint(0, self.width), random.randint(4, self.height)))
+            max_size = random.randint(32, 64)
+            self.dig((random.randint(0, self.width), random.randint(4, self.height)), max_size)
 
-    def dig(self, position, size = 0):
+    def dig(self, position, max_size, size = 0):
         x = position[0]
         y = position[1]
 
-        if size == 32 or x > len(self.tiles) - 1 or y > len(self.tiles[x]) - 1:
+        if size == max_size or x > len(self.tiles) - 1 or y > len(self.tiles[x]) - 1:
             return
 
         size += 1
@@ -82,7 +83,7 @@ class map:
         node = random.choice(node)
 
         for _ in range(node):
-            self.dig(random.choice(choises), size)
+            self.dig(random.choice(choises), max_size, size)
 
     def render(self, offset):
         screen.fill((145, 226, 255))

@@ -34,20 +34,19 @@ class map:
             self.tiles.append([])
 
             for y in range(self.height):
-                match y:
-                    case 0:
-                        self.tiles[x].append("grass")
-                    case 1:
-                        self.tiles[x].append("dirt")
-                    case y if y < 4:
-                       self.tiles[x].append(random.choice(["dirt", "stone"]))
-                    case y if y < 8:
-                        self.tiles[x].append("stone")
-                    case _:
-                        choices = ["stone" for _ in range(12)]
-                        choices.append("coal")
+                if y == 0:
+                    self.tiles[x].append("grass")
+                elif y == 1:
+                    self.tiles[x].append("dirt")
+                elif y < 4:
+                    self.tiles[x].append(random.choice(["dirt", "stone"]))
+                elif y < 8:
+                    self.tiles[x].append("stone")
+                else:
+                    choices = ["stone" for _ in range(12)]
+                    choices.append("coal")
 
-                        self.tiles[x].append(random.choice(choices))
+                    self.tiles[x].append(random.choice(choices))
 
     def render(self, offset):
         screen.fill((145, 226, 255))
@@ -64,6 +63,44 @@ class map:
                 if x_index != None and y_index != None:
                     texture = textures[self.tiles[x_index][y_index]]
                     screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
+
+#Grotes
+def dig(position, map, n):
+    if n == 0:
+        return
+    else:
+        n -= 1
+
+    x = position[0]
+    y = position[1]
+
+    screen.blit(textures["cave"] , (x * 32, y * 32))
+    map[x][y] = "cave"
+    pygame.display.flip()
+
+    choises = []
+
+    if x + 1 < len(map) and map[x + 1][y] != "cave":
+        choises.append((x + 1, y))
+
+    if x - 1 >= 0 and map[x - 1][y] != "cave":
+        choises.append((x - 1, y))
+
+    if y + 1 < len(map[x]) and map[x][y + 1] != "cave":
+        choises.append((x, y + 1))
+
+    if y - 1 >= 0 and map[x][y - 1] != "cave":
+        choises.append((x, y - 1))
+    
+    try :
+        node = [1 for _ in range(9)]
+        node.append(2)
+        node = random.choice(node)
+
+        for _ in range(node):
+            dig(random.choice(choises), map, n)
+    except:
+        return
 
 #Joueur
 class player:
@@ -88,7 +125,7 @@ class player:
         self.map.tiles[floor(self.position[0])][floor(self.position[1])] = "cave"
 
         keys = pygame.key.get_pressed()
-        
+
         if keys[pygame.K_RIGHT]:
             self.position = (self.position[0] + self.speed * .1, self.position[1])
             self.texture = "drill_base_right"
@@ -112,7 +149,10 @@ class player:
 #Game loop
 clock = pygame.time.Clock()
 
-level = map(512, 512)
+level = map(256, 256)
+for _ in range(50):
+    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 64)
+
 drill = player(level)
 
 running = True

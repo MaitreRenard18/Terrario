@@ -47,6 +47,43 @@ class map:
                     choices.append("coal")
 
                     self.tiles[x].append(random.choice(choices))
+        
+        for _ in range(512):
+            max_size = random.randint(32, 64)
+            self.dig((random.randint(0, self.width), random.randint(4, self.height)), max_size)
+
+    def dig(self, position, max_size, size = 0):
+        x = position[0]
+        y = position[1]
+
+        if size == max_size or x > len(self.tiles) - 1 or y > len(self.tiles[x]) - 1:
+            return
+
+        size += 1
+        self.tiles[x][y] = "cave"
+
+        choises = []
+        if x + 1 < len(self.tiles) and self.tiles[x + 1][y] != "cave":
+            choises.append((x + 1, y))
+
+        if x - 1 >= 0 and self.tiles[x - 1][y] != "cave":
+            choises.append((x - 1, y))
+
+        if y + 1 < len(self.tiles[x]) and self.tiles[x][y + 1] != "cave":
+            choises.append((x, y + 1))
+
+        if y - 1 >= 0 and self.tiles[x][y - 1] != "cave":
+            choises.append((x, y - 1))
+        
+        if len(choises) == 0:
+            return
+
+        node = [1 for _ in range(9)]
+        node.append(2)
+        node = random.choice(node)
+
+        for _ in range(node):
+            self.dig(random.choice(choises), max_size, size)
 
     def render(self, offset):
         screen.fill((145, 226, 255))
@@ -63,45 +100,7 @@ class map:
                 if x_index != None and y_index != None:
                     texture = textures[self.tiles[x_index][y_index]]
                     screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
-
-#Grottes
-def dig(position, map, n):
-    if n == 0:
-        return
-    else:
-        n -= 1
-
-    x = position[0]
-    y = position[1]
-
-    screen.blit(textures["cave"] , (x * 32, y * 32))
-    map[x][y] = "cave"
-    pygame.display.flip()
-
-    choises = []
-
-    if x + 1 < len(map) and map[x + 1][y] != "cave":
-        choises.append((x + 1, y))
-
-    if x - 1 >= 0 and map[x - 1][y] != "cave":
-        choises.append((x - 1, y))
-
-    if y + 1 < len(map[x]) and map[x][y + 1] != "cave":
-        choises.append((x, y + 1))
-
-    if y - 1 >= 0 and map[x][y - 1] != "cave":
-        choises.append((x, y - 1))
-    
-    try :
-        node = [1 for _ in range(9)]
-        node.append(2)
-        node = random.choice(node)
-
-        for _ in range(node):
-            dig(random.choice(choises), map, n)
-    except:
-        return
-
+                    
 #Joueur
 class player:
     def __init__(self, map):

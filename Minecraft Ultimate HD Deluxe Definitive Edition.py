@@ -65,21 +65,17 @@ class map:
                     screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
 
 #Grottes
-def dig(position, map, n):
-    if n == 0:
-        return
-    else:
-        n -= 1
-
+def dig(position, map, size):
     x = position[0]
     y = position[1]
 
-    screen.blit(textures["cave"] , (x * 32, y * 32))
+    if size == 32 or x > len(map) - 1 or y > len(map[x]) - 1:
+        return
+
+    size += 1
     map[x][y] = "cave"
-    pygame.display.flip()
 
     choises = []
-
     if x + 1 < len(map) and map[x + 1][y] != "cave":
         choises.append((x + 1, y))
 
@@ -92,15 +88,15 @@ def dig(position, map, n):
     if y - 1 >= 0 and map[x][y - 1] != "cave":
         choises.append((x, y - 1))
     
-    try :
-        node = [1 for _ in range(9)]
-        node.append(2)
-        node = random.choice(node)
-
-        for _ in range(node):
-            dig(random.choice(choises), map, n)
-    except:
+    if len(choises) == 0:
         return
+
+    node = [1 for _ in range(9)]
+    node.append(2)
+    node = random.choice(node)
+
+    for _ in range(node):
+        dig(random.choice(choises), map, size)
 
 #Joueur
 class player:
@@ -153,8 +149,8 @@ print("Génération du monde")
 level = map(256, 256)
 
 print("Génération des grottes")
-for _ in range(32):
-    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 32)
+for _ in range(64):
+    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 0)
 
 print("Génération terminée")
 

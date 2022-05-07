@@ -99,7 +99,7 @@ class map:
                 
                 if x_index != None and y_index != None:
                     texture = textures[self.tiles[x_index][y_index]]
-                    screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
+                    screen.blit(pygame.transform.scale(texture, (32, 32)), (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
                     
 #Joueur
 class player:
@@ -119,7 +119,7 @@ class player:
 
     def tick(self):
         screensize = screen.get_size()
-        screen.blit(textures[self.texture] , (screensize[0] // 2 - 16, screensize[1] // 2))
+        screen.blit(pygame.transform.scale(textures[self.texture], (32, 32)), (screensize[0] // 2 - 16, screensize[1] // 2))
 
         self.map.tiles[floor(self.position[0])][floor(self.position[1])] = "cave"
 
@@ -135,7 +135,7 @@ class player:
             self.texture = "drill_base_left"
             return
 
-        if keys[pygame.K_UP] and self.position[1] > -1:
+        if keys[pygame.K_UP] and self.position[1] > 0:
             self.position = (self.position[0], self.position[1] - self.speed * .1)
             self.texture = "drill_base_up"
             return
@@ -183,21 +183,12 @@ class Shop:
 
 #Game loop
 clock = pygame.time.Clock()
-
-print("Génération du monde")
-level = map(256, 256)
-
-print("Génération des grottes")
-for _ in range(32):
-    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 32)
-
-print("Génération terminée")
-
+level = map(1024, 1024)
 drill = player(level)
 
 boutons = [Shop(textures["buy"], [103, 632], 20), Shop(textures["buy"], [391, 632], 20), Shop(textures["buy"], [679, 632], 20), Shop(textures["exit"], [426, 692], 0)]
 
-shop = #ptdrr t'as vu ça a pas marché, met cque tu veux pour le bool <--- du coup
+shop = False
 running = True
 while running:
     

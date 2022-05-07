@@ -64,7 +64,7 @@ class map:
                     texture = textures[self.tiles[x_index][y_index]]
                     screen.blit(texture, (x * 32 + -offset[0] * 32, y * 32 + -offset[1] * 32))
 
-#Grotes
+#Grottes
 def dig(position, map, n):
     if n == 0:
         return
@@ -149,9 +149,14 @@ class player:
 #Game loop
 clock = pygame.time.Clock()
 
+print("Génération du monde")
 level = map(256, 256)
-for _ in range(50):
-    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 64)
+
+print("Génération des grottes")
+for _ in range(32):
+    dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 32)
+
+print("Génération terminée")
 
 drill = player(level)
 

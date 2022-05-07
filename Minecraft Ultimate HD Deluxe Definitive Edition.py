@@ -146,10 +146,10 @@ class player:
 clock = pygame.time.Clock()
 
 print("Génération du monde")
-level = map(256, 256)
+level = map(512, 512)
 
 print("Génération des grottes")
-for _ in range(64):
+for _ in range(128):
     dig((random.randint(0, len(level.tiles)), random.randint(4, len(level.tiles[0]))), level.tiles, 0)
 
 print("Génération terminée")

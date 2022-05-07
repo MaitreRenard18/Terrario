@@ -48,7 +48,7 @@ class map:
 
                     self.tiles[x].append(random.choice(choices))
         
-        for _ in range(128):
+        for _ in range(512):
             max_size = random.randint(32, 64)
             self.dig((random.randint(0, self.width), random.randint(4, self.height)), max_size)
 
@@ -148,7 +148,7 @@ class player:
 #Game loop
 clock = pygame.time.Clock()
 
-level = map(512, 512)
+level = map(1024, 1024)
 drill = player(level)
 
 running = True

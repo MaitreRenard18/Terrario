@@ -3,6 +3,7 @@ from math import floor
 import pygame
 import random
 import os
+import sys
 
 #Initialisation
 pygame.init()
@@ -30,7 +31,13 @@ class map:
         self.generate() #Appelle la fonction generate qui genère la carte
     
     def generate(self):
+        print("Génération des tuiles.")
+
         for x in range(self.width - 1):
+            sys.stdout.write('\r') #Affiche la progression dans la console
+            sys.stdout.write("{}%".format(floor((x / (self.width - 1)) * 100) + 1))
+            sys.stdout.flush()
+
             self.tiles.append([]) #Ajoute un tableau dans "tiles" qui represente une colone
 
             for y in range(self.height): #Pour chaques lignes dans la colone, des tuiles sont générées en fonction du numéro de ligne
@@ -90,7 +97,12 @@ class map:
 
                     self.tiles[x].append(random.choice(choices))
         
-        for _ in range(750): #Génère 750 grottes
+        print("\nGénération des grottes.")
+        for i in range(750): #Génère 750 grottes
+            sys.stdout.write('\r') #Affiche la progression dans la console
+            sys.stdout.write("{}%".format(floor((i / 750) * 100) + 1))
+            sys.stdout.flush()
+
             max_size = random.randint(32, 64) #Prend une taille aléatoire en 32 et 64 tuiles
             self.dig((random.randint(0, self.width), random.randint(4, self.height)), max_size) #Appelle la fonction dig qui génère une grotte
 
@@ -99,6 +111,8 @@ class map:
             self.tiles[x][-3] = random.choice(["stone", "bedrock"]) #Génère de la "bedrock" au fond de la carte
             self.tiles[x][-2] = random.choice(["stone", "bedrock", "bedrock"])
             self.tiles[x][-1] = "bedrock"
+
+        print("\nGénération terminée.")
 
     def dig(self, position, max_size, size = 0): #Prend en paramètre une position (tuple), une taille max, et une taille actuelle (Qui augmente de 1 à chaque appelle)
         x, y = position
@@ -167,6 +181,15 @@ class player:
     def tick(self): #Fonction appeller à chaque "Frame"
         screensize = screen.get_size()
         screen.blit(pygame.transform.scale(textures[self.texture], (32, 32)), (screensize[0] // 2 - 16, screensize[1] // 2)) #Affiche la foreuse au centre de l'écran
+
+        if self.texture == "drill_base_right": #Affiche la pointe de la foreuse
+            screen.blit(pygame.transform.scale(textures["drill_right"], (32, 32)), (screensize[0] // 2 - 16 + 32, screensize[1] // 2))
+        elif self.texture == "drill_base_left":
+            screen.blit(pygame.transform.scale(textures["drill_left"], (32, 32)), (screensize[0] // 2 - 16 - 32, screensize[1] // 2))
+        elif self.texture == "drill_base_up":
+            screen.blit(pygame.transform.scale(textures["drill_up"], (32, 32)), (screensize[0] // 2 - 16, screensize[1] // 2  - 32))
+        else:
+            screen.blit(pygame.transform.scale(textures["drill_down"], (32, 32)), (screensize[0] // 2 - 16, screensize[1] // 2  + 32))
 
         x, y = floor(self.position[0]), floor(self.position[1]) #Position de la foreuse
 

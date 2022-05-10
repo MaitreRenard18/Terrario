@@ -22,6 +22,20 @@ for file in os.listdir("{}\Textures".format(os.getcwd())): #Récupère toute les
         textures[file_name] = image #Ajoute une l'image dans le dictionnaire texture
 
 #Class carte
+layers = {
+    0: ["air"],
+    1: ["grass"],
+    2: ["dirt"],
+    3: ["dirt", "dirt", "stone"],
+    4: ["dirt", "stone"],
+    5: ["stone"],
+    8: ["stone" for _ in range(16)] + ["coal"], #Ici par exemple le charbon à une chance sur 17 de se générer de la coucge 8 à 11
+    12: ["stone" for _ in range(32)] + ["coal", "coal", "iron"],
+    64: ["stone" for _ in range(64)] + ["iron", "iron", "gold"],
+    256: ["stone" for _ in range(128)] + ["gold", "gold", "diamond"],
+    512: ["stone" for _ in range(128)] + ["diamond", "diamond", "ruby"]
+} #Dictionaire ou les mineraix et leur chance d'apparition sont stockés
+
 class map:
     def __init__(self, width, height): #Prend en paramètre une largeur et une hauter
         self.width = width
@@ -41,62 +55,14 @@ class map:
             self.tiles.append([]) #Ajoute un tableau dans "tiles" qui represente une colone
 
             for y in range(self.height): #Pour chaques lignes dans la colone, des tuiles sont générées en fonction du numéro de ligne
-                if y == 0:
-                    self.tiles[x].append("air")
+                keys = list(layers.keys())
 
-                elif y == 1:
-                    self.tiles[x].append("grass")
+                for layer_key in range(len(keys) - 1, -1, -1):
+                    if y >= keys[layer_key]:
+                        layer = layers[keys[layer_key]]
+                        self.tiles[x].append(random.choice(layer))
+                        break
 
-                elif y == 2:
-                    self.tiles[x].append("dirt")
-
-                elif y == 3:
-                    self.tiles[x].append(random.choice(["dirt", "dirt", "stone"])) #Une chance sur 3 qu'il s'agisse de pierre
-
-                elif y == 4:
-                    self.tiles[x].append(random.choice(["dirt", "stone"]))
-
-                elif y < 8:
-                    self.tiles[x].append("stone")
-
-                elif y < 12:
-                    choices = ["stone" for _ in range(16)] #Initialise un tableau avec 16 pierres
-                    choices.append("coal") #Ajoute une tuile de charbon
-
-                    self.tiles[x].append(random.choice(choices)) #Choisi une tuile parmit "choices" (1 chance sur 17 qu'il sagit d'un mineraix de charbon)
-
-                elif y < 64:
-                    choices = ["stone" for _ in range(32)]
-                    choices.append("coal")
-                    choices.append("coal")
-                    choices.append("iron")
-
-                    self.tiles[x].append(random.choice(choices))
-
-                elif y < 256:
-                    choices = ["stone" for _ in range(64)]
-                    choices.append("iron")
-                    choices.append("iron")
-                    choices.append("gold")
-
-                    self.tiles[x].append(random.choice(choices))
-
-                elif y < 512:
-                    choices = ["stone" for _ in range(128)]
-                    choices.append("gold")
-                    choices.append("gold")
-                    choices.append("diamond")
-
-                    self.tiles[x].append(random.choice(choices))
-
-                elif y < 750:
-                    choices = ["stone" for _ in range(128)]
-                    choices.append("diamond")
-                    choices.append("diamond")
-                    choices.append("ruby")
-
-                    self.tiles[x].append(random.choice(choices))
-        
         print("\nGénération des grottes.")
         for i in range(750): #Génère 750 grottes
             sys.stdout.write('\r') #Affiche la progression dans la console
@@ -166,7 +132,7 @@ class map:
 class player:
     def __init__(self, map): #Prend en paramètre la carte sur lequel le joueur se trouve
         self.position = (map.width // 2, 0) #Prend comme position de depart x le milieu de la carte et y la surface
-        self.speed = 1
+        self.speed = 25
         
         self.map = map
         self.texture = "drill_base_right" #Texture par défaut de la foreuse

@@ -132,7 +132,7 @@ class map:
 class player:
     def __init__(self, map): #Prend en paramètre la carte sur lequel le joueur se trouve
         self.position = (map.width // 2, 0) #Prend comme position de depart x le milieu de la carte et y la surface
-        self.speed = 25
+        self.speed = 1
         
         self.map = map
         self.texture = "drill_base_right" #Texture par défaut de la foreuse

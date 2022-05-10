@@ -1,7 +1,9 @@
 #Imports
+from ast import Pass
 from math import floor
 import pygame
 import random
+from time import sleep
 import os
 import sys
 
@@ -127,6 +129,8 @@ class map:
                 if x_index != None and y_index != None: #Si la colone et la ligne existent
                     texture = textures[self.tiles[x_index][y_index]] #Récupère la texture dans "tiles"
                     screen.blit(pygame.transform.scale(texture, (32, 32)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32)) #Et l'affiche sur l'écran
+                    screen.blit(textures["fuelrod"], (20,20))
+
 
 #Class joueur
 class player:
@@ -136,6 +140,7 @@ class player:
         
         self.map = map
         self.texture = "drill_base_right" #Texture par défaut de la foreuse
+        self.fuel_amount = 1000
 
     def get_camera_offset(self): #Retourne la position de la caméra, c'est à dire le bord supérieur gauche de l'écran, pour permettre au drill d'être afficher au centre (Et non pas en haut à gauche)
         screensize = screen.get_size() #Récupère la taille de l'écran pour calculer la position du bord (Position par rapport à map.tiles)
@@ -167,20 +172,33 @@ class player:
             self.position = (x, self.position[1] + .15) #Diminue sa position
             return #Arrête l'execution de la fonction pour empecher le mouvement
 
+        if self.fuel_amount <= 0:
+            self.position = (self.map.width // 2, 0)
+            screen.blit(textures["nofuel"], (348,348))
+            pygame.display.flip()
+            sleep(2)
+            self.fuel_amount = 1000
+        else:
+            for i in range(0,240,24):
+                screen.blit(textures["fuelp"], (88+i,32))
+
         keys = pygame.key.get_pressed() #Récupère les boutons actuellement pressés
-        if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock": #Si droite est présser et qu'il n'y a pas de "bedrock" aller a droite
+        if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock": #Si droite est préssé et qu'il n'y a pas de "bedrock" aller a droite
             self.position = (self.position[0] + self.speed * .1, y)
             self.texture = "drill_base_right" #Change la texture pour afficher celler qui vas à droite
+            self.fuel_amount -=2
             return
 
         if keys[pygame.K_LEFT] and self.map.tiles[x - 1][y] != "bedrock": #Idem
             self.position = (self.position[0] - self.speed * .1, y)
             self.texture = "drill_base_left"
+            self.fuel_amount -=2
             return
 
         if keys[pygame.K_UP] and self.map.tiles[x][y - 1] != "bedrock" and y > 0: #Idem mais vérifie également si la foreuse se trouve a la surface
             self.position = (self.position[0], self.position[1] - self.speed * .1)
             self.texture = "drill_base_up"
+            self.fuel_amount -=2
 
             if floor(self.position[1]) == y - 1:
                 self.map.tiles[x][y] = "scaffolding"
@@ -190,6 +208,7 @@ class player:
         if keys[pygame.K_DOWN] and self.map.tiles[x][y + 1] != "bedrock": #Idem
             self.position = (x, self.position[1] + self.speed * .1)
             self.texture = "drill_base_down"
+            self.fuel_amount -=2
             return
 
 #Boucle principal
@@ -206,6 +225,6 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
 
     pygame.display.flip() #met à jour l'affichage
 
-    for event in pygame.event.get(): #Petmet d'arrêter la boucle (Et donc le jeu si la fenêtre est fermée)
+    for event in pygame.event.get(): #Permet d'arrêter la boucle (Et donc le jeu si la fenêtre est fermée)
         if event.type == pygame.QUIT:
             running = False

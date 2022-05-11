@@ -36,7 +36,7 @@ layers = {
     64: ["stone" for _ in range(64)] + ["iron", "iron", "gold"],
     256: ["stone" for _ in range(128)] + ["gold", "gold", "diamond"],
     512: ["stone" for _ in range(128)] + ["diamond", "diamond", "ruby"]
-} #Dictionaire ou les mineraix et leur chance d'apparition sont stockés
+} #Dictionaire ou les minerais et leur chance d'apparition sont stockés
 
 class map:
     def __init__(self, width, height): #Prend en paramètre une largeur et une hauter
@@ -129,8 +129,6 @@ class map:
                 if x_index != None and y_index != None: #Si la colone et la ligne existent
                     texture = textures[self.tiles[x_index][y_index]] #Récupère la texture dans "tiles"
                     screen.blit(pygame.transform.scale(texture, (32, 32)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32)) #Et l'affiche sur l'écran
-                    screen.blit(textures["fuelrod"], (20,20))
-
 
 #Class joueur
 class player:
@@ -140,7 +138,9 @@ class player:
         
         self.map = map
         self.texture = "drill_base_right" #Texture par défaut de la foreuse
-        self.fuel_amount = 1000
+        self.gold = 0
+        self.gains = [["coal", "iron", "gold", "diamond", "ruby"],[1,2,4,8,15]]
+        self.fuel_amount = 500
 
     def get_camera_offset(self): #Retourne la position de la caméra, c'est à dire le bord supérieur gauche de l'écran, pour permettre au drill d'être afficher au centre (Et non pas en haut à gauche)
         screensize = screen.get_size() #Récupère la taille de l'écran pour calculer la position du bord (Position par rapport à map.tiles)
@@ -152,6 +152,9 @@ class player:
     def tick(self): #Fonction appeller à chaque "Frame"
         screensize = screen.get_size()
         screen.blit(pygame.transform.scale(textures[self.texture], (32, 32)), (screensize[0] // 2 - 16, screensize[1] // 2)) #Affiche la foreuse au centre de l'écran
+        screen.blit(textures["fuelrod"], (20,20))
+        screen.blit(textures["goldbackground"], (886,23))
+        screen.blit(textures["coin"], (980,15))
 
         if self.texture == "drill_base_right": #Affiche la pointe de la foreuse
             screen.blit(pygame.transform.scale(textures["drill_right"], (32, 32)), (screensize[0] // 2 - 16 + 32, screensize[1] // 2))
@@ -164,7 +167,26 @@ class player:
 
         x, y = floor(self.position[0]), floor(self.position[1]) #Position de la foreuse
 
+        if self.fuel_amount <= 0:
+            self.position = (self.map.width // 2, 0)
+            screen.blit(textures["nofuel"], (348,348))
+            pygame.display.flip()
+            sleep(2)
+            self.fuel_amount = 500
+        else:
+            fuel_points = int(100*self.fuel_amount/500)
+            for i in range(0,fuel_points*2,1):
+                screen.blit(textures["fuelp"], (86+i,32))
+
+        gold_count = [int(v) for v in list(str(self.gold))]
+        for w in range(len(gold_count)):
+            screen.blit(textures[str(gold_count[w])], (896+28*w, 27))
+            pygame.display.flip()
+
         if self.map.tiles[x][y] != "scaffolding" and self.map.tiles[x][y] != "cave" and y != 0: #Si la foreuse se trouve en souterrain et n'est pas sur un échafaudage affiche une texture de grotte
+            for i in range(len(self.gains[0])):
+                if self.map.tiles[x][y] == self.gains[0][i]:
+                    self.gold += self.gains[1][i]
             self.map.tiles[x][y] = "cave"
 
         if self.map.tiles[x][y + 1] == "cave": #Si la foreuse se trouve au dessus du vide, la faire tomber
@@ -172,33 +194,23 @@ class player:
             self.position = (x, self.position[1] + .15) #Diminue sa position
             return #Arrête l'execution de la fonction pour empecher le mouvement
 
-        if self.fuel_amount <= 0:
-            self.position = (self.map.width // 2, 0)
-            screen.blit(textures["nofuel"], (348,348))
-            pygame.display.flip()
-            sleep(2)
-            self.fuel_amount = 1000
-        else:
-            for i in range(0,240,24):
-                screen.blit(textures["fuelp"], (88+i,32))
-
         keys = pygame.key.get_pressed() #Récupère les boutons actuellement pressés
         if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock": #Si droite est préssé et qu'il n'y a pas de "bedrock" aller a droite
             self.position = (self.position[0] + self.speed * .1, y)
             self.texture = "drill_base_right" #Change la texture pour afficher celler qui vas à droite
-            self.fuel_amount -=2
+            self.fuel_amount -=1
             return
-
+            
         if keys[pygame.K_LEFT] and self.map.tiles[x - 1][y] != "bedrock": #Idem
             self.position = (self.position[0] - self.speed * .1, y)
             self.texture = "drill_base_left"
-            self.fuel_amount -=2
+            self.fuel_amount -=1
             return
 
         if keys[pygame.K_UP] and self.map.tiles[x][y - 1] != "bedrock" and y > 0: #Idem mais vérifie également si la foreuse se trouve a la surface
             self.position = (self.position[0], self.position[1] - self.speed * .1)
             self.texture = "drill_base_up"
-            self.fuel_amount -=2
+            self.fuel_amount -=1
 
             if floor(self.position[1]) == y - 1:
                 self.map.tiles[x][y] = "scaffolding"
@@ -208,7 +220,7 @@ class player:
         if keys[pygame.K_DOWN] and self.map.tiles[x][y + 1] != "bedrock": #Idem
             self.position = (x, self.position[1] + self.speed * .1)
             self.texture = "drill_base_down"
-            self.fuel_amount -=2
+            self.fuel_amount -=1
             return
 
 #Boucle principal

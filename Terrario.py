@@ -131,6 +131,113 @@ class map:
                     screen.blit(pygame.transform.scale(texture, (32, 32)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32)) #Et l'affiche sur l'écran
 
 #Class joueur
+ores_values = {
+    "coal": 1,
+    "iron": 2,
+    "gold": 4,
+    "diamond": 8,
+    "ruby": 15
+}
+
+class player:
+    def __init__(self, position, map):
+        self.position = position
+        self.direction = ["right", (1, 0)]
+
+        self.speed = 1
+        self.moving_cooldown = 0
+        self.falling_cooldown = 0
+
+        self.gold = 0
+        self.fuel = 100
+        
+        self.map = map
+
+    def get_camera_offset(self):
+        screensize = screen.get_size()
+        x = floor(self.position[0]) - (screensize[0] // 32) // 2
+        y = floor(self.position[1]) - (screensize[1] // 32) // 2
+
+        return (x, y)
+
+    def mine(self):
+        x, y = self.position
+        ore = self.map.tiles[x][y]
+
+        if ore in ores_values:
+            self.gold += ores_values[ore]
+
+        self.map.tiles[x][y] = "cave"
+
+    def tick(self):
+        screensize = screen.get_size()
+
+        drill_base_texture = pygame.transform.scale(textures["drill_base_{}".format(self.direction[0])], (32, 32))
+        drill_base_position = (screensize[0] // 2 - 16, screensize[1] // 2)
+        screen.blit(drill_base_texture, drill_base_position)
+
+        drill_texture = pygame.transform.scale(textures["drill_{}".format(self.direction[0])], (32, 32))
+        drill_position = (drill_base_position[0] + self.direction[1][0] * 32, drill_base_position[1] + self.direction[1][1] * 32)
+        screen.blit(drill_texture, drill_position)
+
+        x, y = self.position
+
+        if not self.map.tiles[x][y] in ["scaffolding", "cave", "air"]:
+            self.mine()
+        
+        if self.map.tiles[x][y + 1] == "cave":
+            parachue_texture = pygame.transform.scale(textures["parachute"], (32, 32))
+            screen.blit(parachue_texture, (screensize[0] // 2 - 16, screensize[1] // 2 - 32))
+
+            if self.falling_cooldown > 0:
+                self.falling_cooldown -= .25
+                return
+            
+            self.position = (x, self.position[1] + 1)
+            self.falling_cooldown = 1
+
+            return
+
+        if self.moving_cooldown > 0:
+            self.moving_cooldown -= self.speed * .1
+            return
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock":
+            self.position = (x + 1, y)
+            self.direction = ["right", (1, 0)]
+            self.fuel -= 1
+
+            self.moving_cooldown = 1
+            return
+
+        if keys[pygame.K_LEFT] and self.map.tiles[x - 1][y] != "bedrock":
+            self.position = (x - 1, y)
+            self.direction = ["left", (-1, 0)]
+            self.fuel -= 1
+
+            self.moving_cooldown = 1
+            return
+
+        if keys[pygame.K_UP] and self.map.tiles[x][y - 1] != "bedrock" and y > 0:
+            self.position = (x, y - 1)
+            self.direction = ["up", (0, -1)]
+            self.fuel -= 1
+
+            self.map.tiles[x][y] = "scaffolding"
+            
+            self.moving_cooldown = 1
+            return
+
+        if keys[pygame.K_DOWN] and self.map.tiles[x][y + 1] != "bedrock":
+            self.position = (x, y + 1)
+            self.direction = ["down", (0, 1)]
+            self.fuel -= 1
+
+            self.moving_cooldown = 1
+            return
+
+""" Ancienne ver. de player 
 class player:
     def __init__(self, map): #Prend en paramètre la carte sur lequel le joueur se trouve
         self.position = (map.width // 2, 0) #Prend comme position de depart x le milieu de la carte et y la surface
@@ -222,11 +329,12 @@ class player:
             self.texture = "drill_base_down"
             self.fuel_amount -=1
             return
+"""
 
 #Boucle principal
 clock = pygame.time.Clock() #Créer une "clock" qui permet de limiter la vitesse d'excution maximal grace à la fonction tick()
 level = map(1024, 1024) #Créer une carte de 1024 * 1024
-drill = player(level) #Créer le joueur ayant comme paramètre la carte
+drill = player((level.width // 2, 0), level) #Créer le joueur ayant comme paramètre la carte
 
 running = True
 while running: #Boucle principal qui execute toutes les fonctions à chaques frames

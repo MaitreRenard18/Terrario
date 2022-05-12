@@ -235,6 +235,24 @@ class Player:
 
             self.moving_cooldown = 1
             return
+        
+#Interface
+class Interface:
+    def __init__(self, player): #Prend en paramètre la class Player, pour avoir accès à ses variables
+        self.player = player
+        
+    def render(self):
+        screen.blit(textures["fuelrod"], (20, 20))
+        self.fuel = int(self.player.fuel*50/100)
+        for i in range(0,self.fuel*8,1):
+            screen.blit(textures["fuelp"], (86+i, 32))
+
+        screen.blit(textures["goldbackground"], (855, 23))
+        screen.blit(textures["coin"], (970, 15))
+        gold = [int(v) for v in list(str(self.player.gold))]
+        for w in range(len(gold)):
+            screen.blit(textures[str(gold[w])], (860+28*w, 27))
+            pygame.display.flip()
 
 #Class batiment
 class ShopBuilding:
@@ -277,6 +295,7 @@ clock = pygame.time.Clock() #Créer une "clock" qui permet de limiter la vitesse
 
 level = Map(1024, 1024) #Créer une carte de 1024 * 1024
 drill = Player((level.width // 2, 0), level) #Créer le joueur ayant comme paramètre la carte
+hud = Interface(drill) #Créer une interface avec différentes barres (comme) le fuel) et compteurs (comme le gold)
 
 shop = ShopBuilding((level.width // 2, 0), level)
 
@@ -287,6 +306,7 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
     level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
     shop.tick() #"Met a jour" la shop
     drill.tick() #"Met a jour" la foreuse
+    hud.render() #"Met a jour" l'interface
 
     pygame.display.flip() #Met à jour l'affichage
 

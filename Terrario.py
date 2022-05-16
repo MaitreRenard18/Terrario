@@ -250,7 +250,7 @@ class Interface:
     def __init__(self, player): #Prend en paramètre la class Player, pour avoir accès à ses variables
         self.player = player
         
-    def render(self): #La fonction qui affiche toute les textures de barres/compteurs
+    def render_ingame(self): #La fonction qui affiche toute les textures de barres/compteurs
         screen.blit(textures["fuelrod"], (20, 20)) #J'affiche la barre de fuel
         fuel_amount = int(self.player.fuel/self.player.fuel_max*100) #Je converti le fuel en pourcentage, pour adapter ma barre selon le fuel max
         for i in range(0,fuel_amount*2): #J'affiche la quantité de fuel selon le pourcentage
@@ -258,16 +258,30 @@ class Interface:
 
         screen.blit(textures["goldbackground"], (855, 23)) #J'affiche le fond pour l'affichage du compteur de gold
         screen.blit(textures["coin"], (970, 15)) #J'affiche l'icone de pièce, pour spécifier que c'est l'argent
-        gold = [int(v) for v in list(str(self.player.gold))]
-        for w in range(len(gold)):
-            screen.blit(textures[str(gold[w])], (860+28*w, 27))
-            pygame.display.flip()
+        
+        police = pygame.font.SysFont("Sans Serif", 50) #Je définie la police du compteur de gold
+        gold_count = police.render(str(self.player.gold), 1, (0,0,0)) #Je rentre les différents paramètres de mon texte dans la vairable gold_count (le compteur, la couleur, ici en noir)
+        screen.blit(gold_count, (862, 26)) #Puis j'affiche le text où le veux
+
+        pygame.display.flip()
+
+    def render_inshop(self):
+        screen.blit(textures["goldbackground"], (855, 23)) #J'affiche le fond pour l'affichage du compteur de gold
+        screen.blit(textures["coin"], (970, 15)) #J'affiche l'icone de pièce, pour spécifier que c'est l'argent
+        
+        police = pygame.font.SysFont("Sans Serif", 50) #Je définie la police du compteur de gold, et les prix affichés
+        gold_count = police.render(str(self.player.gold), 1, (0,0,0)) #Je rentre les différents paramètres de mon texte dans la vairable gold_count (le compteur, la couleur, ici en noir)
+        screen.blit(gold_count, (862, 26)) #Puis j'affiche le text où le veux
+        for i in range(len(boutons)-1):
+            price_count = police.render(str(boutons[i].price), 1, (255,255,255)) #Je rentre les différents paramètres de mon texte dans la vairable price_count (le compteur, la couleur, ici blanc)
+            screen.blit(price_count, (155+i*290, 580)) #Puis j'affiche le text où le veux, ici le i*290 pour espacer d'un équart entre chaque affichage de prix
+
+        pygame.display.flip()
 
 #Shop
 def affichage(): #C'est ma fonction qui affiche le shop de base, sans l'animation des boutons ou autre
         screen.blit(textures["background"], (0,0)) #J'affiche le fond beige
         screen.blit(textures["shop"], (70,50)) #J'affiche l'interface
-        pygame.display.flip()
 
 class Button:
     def __init__(self, image, position, price, func, player): #Qui prend en paramètre une image, sa position, le prix de l'amélioration, une fonction pour augmenter/décrémenter selon le bouton, et la class Player (pour avoir accès au fuel et au gold)
@@ -281,6 +295,8 @@ class Button:
         for event in pygame.event.get(): 
             if event.type == pygame.MOUSEBUTTONUP: #Si le joueur clique sur le bouton
                 self.func(self) #On effectue la fonction qui est définie sur le bouton cliqué
+                affichage() #Si le joueur a cliqué, on réenitialise l'affichage du shop (pour éviter que l'affichage des prix se superpose)
+                hud.render_inshop() #"Met a jour" l'interface, donc l'affichage de l'argent et des différents prix de chaque améliorations
                     
     def animation(self): #ça sert à afficher les boutons animés, par dessus l'interface
         mouse = pygame.mouse.get_pos() #On stock la position de la souris dans la variable mouse
@@ -361,12 +377,13 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
 
     if bool_shop:
         for i in range(len(boutons)):
-            boutons[i].animation()
+            boutons[i].animation() #J'appelle chaque boutons, pour vérifier si la souris est sur l'un d'eux
+            hud.render_inshop() #"Met a jour" l'interface, donc l'affichage de l'argent et des différents prix de chaque améliorations
     else:
         level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
         shop.tick() #"Met a jour" la shop
         drill.tick() #"Met a jour" la foreuse
-        hud.render() #"Met a jour" l'interface
+        hud.render_ingame() #"Met a jour" l'interface
 
     pygame.display.flip() #Met à jour l'affichage
 
@@ -374,5 +391,5 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
         if event.type == pygame.QUIT:
             running = False
 
-#Lignes par Lucas: 170
-#Lignes par Ugo: 80
+#Lignes par Lucas: 200
+#Lignes par Ugo: 100

@@ -368,6 +368,43 @@ class ShopBuilding:
                 parachute_texture = textures["shop_parachute"]
                 screen.blit(pygame.transform.scale(parachute_texture, (160, 160)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - 208))
 
+class Prop:
+    def __init__(self, texture, position, map, player):
+        self.texture = pygame.transform.scale(texture, (texture.get_width() * 2, texture.get_height() * 2))
+        self.position = position
+
+        self.map = map
+        self.player = player
+
+        self.falling_cooldown = 0
+
+    def tick(self):
+        x, y = self.position
+        width = self.texture.get_width() // 32 + (self.texture.get_width() % 2 > 0)
+
+        floor_underneath = False
+        for i in range(width):
+            if not self.map.tiles[x + i][y + 1] in ["cave", "scaffolding"]:
+                floor_underneath = True
+                self.falling_cooldown = 1
+
+        if self.falling_cooldown > 0:
+            self.falling_cooldown -= .25
+        elif not floor_underneath:
+            self.position = (x, y + 1)
+            self.falling_cooldown = 1
+
+        offset = self.player.get_camera_offset()
+        screensize = screen.get_size()
+
+        if offset[0] <= x + (width - 1) and offset[0] + screensize[0] // 32 > x and offset[1] < y + 1:
+            screen.blit(self.texture, (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - (self.texture.get_height() - 32)))
+
+            if not floor_underneath:
+                parachute_texture = textures["shop_parachute"]
+                x = x * 32 - offset[0] * 32
+                y = y * 32 - offset[1] * 32  + 32 - self.texture.get_height() - self.texture.get_width()
+                screen.blit(pygame.transform.scale(parachute_texture, (self.texture.get_width(), self.texture.get_width())), (x, y))
 #Boucle principal
 clock = pygame.time.Clock() #Créer une "clock" qui permet de limiter la vitesse d'excution maximal grace à la fonction tick()
 
@@ -383,6 +420,12 @@ boutons = [
     Button(textures["exit"], [426, 691], 0, exit_button, drill),
 ] #Tableau contenant chaque paramètres de chaque boutons
 
+trees = []
+i = 0
+while i < 1013:
+    i = random.randint(i + 4, i + 10)
+    trees.append(Prop(textures["tree"], [i, 0], level, drill))
+
 bool_shop = None #Faut changer ça, selon ce que tu veux (être dans le shop, ou sur la map princiaple)
 running = True
 while running: #Boucle principal qui execute toutes les fonctions à chaques frames
@@ -395,6 +438,9 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
     else:
         level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
         shop.tick() #"Met a jour" la shop
+        for tree in trees:
+            tree.tick()
+        
         drill.tick() #"Met a jour" la foreuse
         hud.render_ingame() #"Met a jour" l'interface
 

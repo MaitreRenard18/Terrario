@@ -221,6 +221,9 @@ class Player:
                 global bool_shop
                 bool_shop = True
 
+        if keys[pygame.K_g]: #Si la touche g est pressée
+            self.gold += 100 #on augmente le gold de 100 (c'est un cheat code, pour faire des tests principalement)
+
         if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock": #Si la touche préssée est droite, et qu'il n'y a pas de bedrock à droite
             self.position = (x + 1, y) #La position du joueur augmente, vers la droite
             self.direction = ["right", (1, 0)] #La direction est mise vers la droite
@@ -402,4 +405,4 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
             running = False
 
 #Lignes par Lucas: 200
-#Lignes par Ugo: 120
+#Lignes par Ugo: 130

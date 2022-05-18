@@ -17,17 +17,17 @@ Les minerais rapportent différentes sommes d'argent selon la rareté:
 15g pour le ruby
 Evidemment, plus le minerai miné est profond ou rare, plus il rapportera d'argent.
 
+#Déplacements
+
+Le joueur peut se déplacer à gauche, en bas, à droite et en haut, avec les touches directionnelles correspondantes.
+Si il n'y a pas de blocs en dessous de lui, il sera soumis à la gravité, et tombera (tout comme le garage et les arbres).
+Si le joueur monte, il posera des échaffaudages qui lui permetront de remonter à la surface.
+
 #Améliorations
 
 La vitesse du joueur est définie de base à 1, son maximum est 10. Elle est augmentée de 0.2 à chaque amélioration.
 Le fuel de base vous permet de faire 50 déplacements. Dix nouveaux déplacements sont ajoutés si vous achetez l'amélioration correspondante.
 Il existe une amélioration mystère dans le garage, peut-être qu'un peu de peinture sera appliquée sur votre machine après l'avoir achetée.
-
-#Déplacements
-
-Le joueur peut se déplacer à gauche, en bas, à droite et en haut.
-Si il n'y a pas de blocs en dessous de lui, il sera soumis à la gravité, et tombera (tout comme le garage et les arbres).
-Si le joueur monte, il posera des échaffaudages qui lui permetront de remonter à la surface.
 
 #Elements du monde
 

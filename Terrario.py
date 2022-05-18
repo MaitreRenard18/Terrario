@@ -21,6 +21,10 @@ for file in os.listdir("{}\Textures".format(os.getcwd())): #Récupère toute les
         image = pygame.image.load(path) #Charge l'image
 
         textures[file_name] = image #Ajoute une l'image dans le dictionnaire texture
+        
+#Son
+pygame.mixer.init()
+pygame.mixer.music.load('Music/house_theme.mp3')
 
 #Class carte
 layers = {
@@ -437,6 +441,7 @@ boutons = [
     Button(textures["exit"], [426, 691], 0, exit_button, drill),
 ] #Tableau contenant chaque paramètres de chaque boutons
 
+pygame.mixer.music.play()
 bool_shop = None #Faut changer ça, selon ce que tu veux (être dans le shop, ou sur la map princiaple)
 running = True
 while running: #Boucle principal qui execute toutes les fonctions à chaques frames

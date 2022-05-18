@@ -270,6 +270,9 @@ class Player:
 class Interface:
     def __init__(self, player): #Prend en paramètre la class Player, pour avoir accès à ses variables
         self.player = player
+
+    def render_menu(self):
+        screen.blit(textures["menu"], (0,0))
         
     def render_ingame(self): #La fonction qui affiche toute les textures de barres/compteurs
         screen.blit(textures["fuelrod"], (20, 20)) #J'affiche la barre de fuel
@@ -303,23 +306,34 @@ class Interface:
 
 #Shop
 class Button:
-    def __init__(self, image, position, price, func, player): #Qui prend en paramètre une image, sa position, le prix de l'amélioration, une fonction pour augmenter/décrémenter selon le bouton, et la class Player (pour avoir accès au fuel et au gold)
+    def __init__(self, image, position, price, func, limit, player): #Qui prend en paramètre une image, sa position, le prix de l'amélioration, une fonction pour augmenter/décrémenter selon le bouton, et la class Player (pour avoir accès au fuel et au gold)
         self.image = image
         self.position = position
         self.price = price
         self.func = func
+        self.limit = limit
         self.player = player
 
     def click(self):
         for event in pygame.event.get(): 
-            if event.type == pygame.MOUSEBUTTONUP and self.player.gold >= self.price: #Si le joueur clique sur le bouton, et que son argent est supérieur au prix de l'amélioration
+            if event.type == pygame.MOUSEBUTTONUP and self.player.gold >= self.price and self.limit != True: #Si le joueur clique sur le bouton, et que son argent est supérieur au prix de l'amélioration
                 self.player.gold -= self.price #On diminue le gold, selon le prix de l'amélioration achetée
                 self.func(self) #On effectue la fonction qui est définie sur le bouton cliqué
-                hud.render_inshop() #"Met a jour" l'interface, (pour actualiser le prix, l'argent et éviter que l'affichage des prix se superpose)
+                if menu:
+                    hud.render_menu() #"Met a jour" l'interface, (pour réafficher le menu
+                else:
+                    hud.render_inshop() #"Met a jour" l'interface, (pour actualiser le prix, l'argent et éviter que l'affichage des prix se superpose)
             elif event.type == pygame.MOUSEBUTTONUP and self.player.gold < self.price: #Si le joueur clique sur le bouton, et que son argent est inférieur au prix de l'amélioration
                 screen.blit(textures["barrier"], (346, 234))
                 pygame.display.flip()
-                sleep(0.2) #On attend 2 secondes que le joueur perçoit bien la fenetre
+                sleep(0.2) #On attend 0.2 secondes que le joueur perçoit bien la fenetre
+            elif event.type == pygame.MOUSEBUTTONUP and self.limit:
+                screen.blit(textures["barrier"], (346, 234))
+                police = pygame.font.SysFont("Sans Serif", 50) #Je définie la police du texte
+                limit_reached = police.render("La limite est atteinte.", 1, (0,0,0)) #Je rentre les différents paramètres de mon texte dans la vairable limit reachhed (le texte, la couleur, ici en blanc)
+                screen.blit(limit_reached, (360, 350)) #Puis j'affiche le text où le veux
+                pygame.display.flip()
+                sleep(0.5)
                     
     def animation(self): #ça sert à afficher les boutons animés, par dessus l'interface
         mouse = pygame.mouse.get_pos() #On stock la position de la souris dans la variable mouse
@@ -328,10 +342,15 @@ class Button:
             pygame.display.flip()
             self.click() #J'appelle click, pour vérifier si le bouton est cliqué ou non
             mouse = pygame.mouse.get_pos() #Je reprend la position de la souris, pour vérifier si elle est toujours sur le bouton ou non (donc pour sortir du while)
+
+            if bool_shop == False:
+                break
     
 def speed_button(self): #Fonction qui augmente la vitesse du joueur et le prix de l'amélioration qui vient d'être achetée
     self.player.speed += 0.2
     self.price += 20
+    if self.player.speed >= 10:
+        self.limit = True
 def fuel_button(self): #Fonction qui augmente le fuel maximum et le prix de l'amélioration qui vient d'être achetée
     self.player.fuel_max += 10
     self.player.fuel = self.player.fuel_max #Je reeinitialise le fuel à 0, pour mettre en place la nouvelle amélioration
@@ -339,9 +358,17 @@ def fuel_button(self): #Fonction qui augmente le fuel maximum et le prix de l'am
 def skin_button(self): #Fonction qui change le skin du joueur
     global skin
     skin = True
-def exit_button(self): #Fonction définie pour le bouton exit, pour sortir du shop, et retourner sur la map
+    if skin:
+        self.limit = True
+def play_exit_button(self): #Fonction définie pour le bouton exit, pour sortir du shop, et retourner sur la map
     global bool_shop
     bool_shop = False
+    global menu
+    menu = False
+def exit_button(self):
+    global running 
+    running = False
+
 
 #Class batiment
 class ShopBuilding:
@@ -431,16 +458,20 @@ while i < 1013:
     trees.append(Prop(textures["tree"], [i, 0], level, drill))
  
 boutons = [
-    Button(textures["buy"], [103, 632], 20, speed_button, drill),
-    Button(textures["buy"], [391, 632], 20, fuel_button, drill),
-    Button(textures["buy"], [679, 632], 500, skin_button, drill),
-    Button(textures["exit"], [426, 691], 0, exit_button, drill),
+    Button(textures["buy"], [103, 632], 20, speed_button, False, drill),
+    Button(textures["buy"], [391, 632], 20, fuel_button, False, drill),
+    Button(textures["buy"], [679, 632], 500, skin_button, False, drill),
+    Button(textures["exit"], [426, 691], 0, play_exit_button, False, drill),
 ] #Tableau contenant chaque paramètres de chaque boutons
+boutons_menu = [
+    Button(textures["play"], [322, 578], 0, play_exit_button, False, drill),
+    Button(textures["big_exit"], [383, 678], 0, exit_button, False, drill),
+]
 
 bool_shop = None #Faut changer ça, selon ce que tu veux (être dans le shop, ou sur la map princiaple)
 running = True
 while running: #Boucle principal qui execute toutes les fonctions à chaques frames
-    if not bool_shop:
+    if bool_shop == False:
         clock.tick(60) 
 
         level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
@@ -451,10 +482,16 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
         drill.tick() #"Met a jour" la foreuse
         hud.render_ingame() #"Met a jour" l'interface
 
-    else:
+    elif bool_shop:
         for i in range(len(boutons)):
             boutons[i].animation() #J'appelle chaque boutons, pour vérifier si la souris est sur l'un d'eux
-            hud.render_inshop() #"Met a jour" l'interface, pour enlever les potentielles animations de boutons 
+            hud.render_inshop() #"Met a jour" l'interface, pour enlever les potentielles animations de boutons
+
+    else:
+        menu = True
+        for i in range(len(boutons_menu)):
+            boutons_menu[i].animation() #J'appelle chaque boutons, pour vérifier si la souris est sur l'un d'eux
+            hud.render_menu()
 
     pygame.display.flip() #Met à jour l'affichage
 
@@ -463,5 +500,5 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
             running = False
 
 
-#Lignes par Lucas: 190
-#Lignes par Ugo: 120
+#Lignes par Lucas: 200
+#Lignes par Ugo: 150

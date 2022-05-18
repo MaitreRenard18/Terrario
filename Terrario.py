@@ -378,6 +378,44 @@ class ShopBuilding:
                 parachute_texture = textures["shop_parachute"]
                 screen.blit(pygame.transform.scale(parachute_texture, (160, 160)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - 208))
 
+class Prop:
+    def __init__(self, texture, position, map, player):
+        self.texture = pygame.transform.scale(texture, (texture.get_width() * 2, texture.get_height() * 2))
+        self.position = position
+
+        self.map = map
+        self.player = player
+
+        self.falling_cooldown = 0
+
+    def tick(self):
+        x, y = self.position
+        width = self.texture.get_width() // 32 + (self.texture.get_width() % 2 > 0)
+
+        floor_underneath = False
+        for i in range(width):
+            if not self.map.tiles[x + i][y + 1] in ["cave", "scaffolding"]:
+                floor_underneath = True
+                self.falling_cooldown = 1
+
+        if self.falling_cooldown > 0:
+            self.falling_cooldown -= .25
+        elif not floor_underneath:
+            self.position = (x, y + 1)
+            self.falling_cooldown = 1
+
+        offset = self.player.get_camera_offset()
+        screensize = screen.get_size()
+
+        if offset[0] <= x + (width - 1) and offset[0] + screensize[0] // 32 > x and offset[1] < y + 1:
+            screen.blit(self.texture, (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - (self.texture.get_height() - 32)))
+
+            if not floor_underneath:
+                parachute_texture = textures["shop_parachute"]
+                x = x * 32 - offset[0] * 32
+                y = y * 32 - offset[1] * 32  + 32 - self.texture.get_height() - self.texture.get_width()
+                screen.blit(pygame.transform.scale(parachute_texture, (self.texture.get_width(), self.texture.get_width())), (x, y))
+                
 #Boucle principal
 clock = pygame.time.Clock() #Créer une "clock" qui permet de limiter la vitesse d'excution maximal grace à la fonction tick()
 
@@ -386,6 +424,12 @@ shop = ShopBuilding((level.width // 2, 0), level)
 drill = Player((level.width // 2, 0), level, shop) #Créer le joueur ayant comme paramètre la carte
 hud = Interface(drill) #Créer une interface avec différentes barres (comme) le fuel) et compteurs (comme le gold)
 
+trees = []
+i = 0
+while i < 1013:
+    i = random.randint(i + 4, i + 10)
+    trees.append(Prop(textures["tree"], [i, 0], level, drill))
+ 
 boutons = [
     Button(textures["buy"], [103, 632], 20, speed_button, drill),
     Button(textures["buy"], [391, 632], 20, fuel_button, drill),
@@ -396,23 +440,28 @@ boutons = [
 bool_shop = None #Faut changer ça, selon ce que tu veux (être dans le shop, ou sur la map princiaple)
 running = True
 while running: #Boucle principal qui execute toutes les fonctions à chaques frames
-    clock.tick(60) 
+    if not bool_shop:
+        clock.tick(60) 
 
-    if bool_shop:
+        level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
+        shop.tick() #"Met a jour" la shop
+        for tree in trees:
+            tree.tick()
+            
+        drill.tick() #"Met a jour" la foreuse
+        hud.render_ingame() #"Met a jour" l'interface
+
+    else:
         for i in range(len(boutons)):
             boutons[i].animation() #J'appelle chaque boutons, pour vérifier si la souris est sur l'un d'eux
             hud.render_inshop() #"Met a jour" l'interface, pour enlever les potentielles animations de boutons 
-    else:
-        level.render(drill.get_camera_offset()) #Affiche la carte avec une position de camera obtenue grace à fonction get_camera_offset()
-        shop.tick() #"Met a jour" la shop
-        drill.tick() #"Met a jour" la foreuse
-        hud.render_ingame() #"Met a jour" l'interface
 
     pygame.display.flip() #Met à jour l'affichage
 
     for event in pygame.event.get(): #Permet d'arrêter la boucle (Et donc le jeu si la fenêtre est fermée)
         if event.type == pygame.QUIT:
             running = False
+
 
 #Lignes par Lucas: 190
 #Lignes par Ugo: 120

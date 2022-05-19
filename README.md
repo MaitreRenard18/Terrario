@@ -1,3 +1,6 @@
+Vous pouvez voir ci dessous, le trailer du jeu:
+https://streamable.com/rnrf5f
+
 #But du jeu
 
 Terrario est un jeu basé sur le minage dans un monde pixelisé. Votre but, est ici de miner un maximum de minerais, avant que le fuel présent dans votre machine, se vide. En minant des minerais, vous gagnerez de l'argent, que vous pourrez dépenser dans le garage, pour améliorer les capacités du drill. Plus le drill est amélioré, plus il ira vite et loin, et donc il pourra récupérer de plus en plus de minerais rares.

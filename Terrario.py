@@ -239,7 +239,7 @@ class Player:
         if keys[pygame.K_g]: #Si la touche g est pressée
             self.gold += 100 #on augmente le gold de 100 (c'est un cheat code, pour faire des tests principalement)
 
-        if keys[pygame.K_RIGHT] and self.map.tiles[x + 1][y] != "bedrock": #Si la touche préssée est droite, et qu'il n'y a pas de bedrock à droite
+        if keys[pygame.K_RIGHT] and x < len(self.map.tiles) - 1 and self.map.tiles[x + 1][y] != "bedrock": #Si la touche préssée est droite, et qu'il n'y a pas de bedrock à droite
             self.position = (x + 1, y) #La position du joueur augmente, vers la droite
             self.direction = ["right", (1, 0)] #La direction est mise vers la droite
             self.fuel -= 1 #Et on décrémente le fuel car le joueur vient de bouger
@@ -247,7 +247,7 @@ class Player:
             self.moving_cooldown = 1
             return
 
-        if keys[pygame.K_LEFT] and self.map.tiles[x - 1][y] != "bedrock": #Si la touche préssée est gauche, et qu'il n'y a pas de bedrock à gauche
+        if keys[pygame.K_LEFT] and self.map.tiles[x - 1][y] != "bedrock" and x != 0: #Si la touche préssée est gauche, et qu'il n'y a pas de bedrock à gauche
             self.position = (x - 1, y) #La position du joueur diminue, pour aller à gauche
             self.direction = ["left", (-1, 0)] #La direction est mise vers la gauche
             self.fuel -= 1 #Et on décrémente le fuel car le joueur vient de bouger
@@ -425,7 +425,7 @@ hud = Interface(drill) #Créer une interface avec différentes barres (comme) le
 
 trees = []
 i = 0
-while i < 1013:
+while i < level.width - 10:
     i = random.randint(i + 4, i + 10)
     trees.append(Rigidbody(textures["tree"], (i, 0), level))
  
@@ -471,3 +471,7 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
     for event in pygame.event.get(): #Permet d'arrêter la boucle (Et donc le jeu si la fenêtre est fermée)
         if event.type == pygame.QUIT:
             running = False
+
+#Lignes par Lucas: 200
+#Lignes par Ugo: 140
+#Lignes par Hideo Kojima: 621

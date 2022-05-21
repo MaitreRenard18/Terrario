@@ -1,10 +1,7 @@
 #Imports
-from math import floor
-import pygame
-import random
 from time import sleep
-import os
-import sys
+from math import floor
+import os, sys, random, pygame
 
 #Initialisation
 pygame.init()
@@ -154,8 +151,8 @@ class Player:
         self.direction = ["right", (1, 0)] #Défini la direction vers laquelle le drill va
 
         self.speed = 1 #Le montant qui défini la vitesse du joueur, maximum 10, sinon le drill se téléporte
-        self.moving_cooldown = 0
-        self.falling_cooldown = 0
+        self.moving_cooldown = 0 #Cooldown entre chaque frame pour reduire la vitesse de dépalacement
+        self.falling_cooldown = 0 #Idem pour la gravité
 
         self.gold = 0 #Le montant qui défini l'argent
         self.fuel_max = 50 #Le montant qui défini le fuel max, modifiable par le shop
@@ -183,17 +180,19 @@ class Player:
     def tick(self):
         screensize = screen.get_size()
 
-        if skin:
+        if skin: #Verifie si on doit appliquer le skin secret ou non
             drill_base_texture = pygame.transform.scale(textures["spongebob_drill_{}".format(self.direction[0])], (32, 32))
         else:   
             drill_base_texture = pygame.transform.scale(textures["drill_base_{}".format(self.direction[0])], (32, 32))
-        drill_base_position = (screensize[0] // 2 - 16, screensize[1] // 2)
-        screen.blit(drill_base_texture, drill_base_position)
 
-        if skin:
+        drill_base_position = (screensize[0] // 2 - 16, screensize[1] // 2) #Position du drill sur l'écran
+        screen.blit(drill_base_texture, drill_base_position) #Affiche le drill
+
+        if skin: #Idem mais cette fois si pour la pointe du drill
             drill_texture = pygame.transform.scale(textures["patrick_drill_{}".format(self.direction[0])], (32, 32))
         else:
             drill_texture = pygame.transform.scale(textures["drill_{}".format(self.direction[0])], (32, 32))
+        
         drill_position = (drill_base_position[0] + self.direction[1][0] * 32, drill_base_position[1] + self.direction[1][1] * 32)
         screen.blit(drill_texture, drill_position)
 
@@ -378,74 +377,39 @@ def exit_button(self):
     running = False
 
 
-#Class batiment
-class ShopBuilding:
-    def __init__(self, position, map):
-        self.position = position
-        self.map = map
-
-        self.falling_cooldown = 0
-
-    def tick(self):
-        x, y = self.position
-
-        floor_underneath = False
-        for i in range(5):
-            if not self.map.tiles[x + i][y + 1] in ["cave", "scaffolding"]:
-                floor_underneath = True
-                self.falling_cooldown = 1
-
-        if self.falling_cooldown > 0:
-                self.falling_cooldown -= .25
-        else:
-            if not floor_underneath:
-                self.position = (x, y + 1)
-                self.falling_cooldown = 1
-
-        offset = drill.get_camera_offset()
-        screensize = screen.get_size()
-
-        if offset[0] <= x + 4 and offset[0] + screensize[0] // 32 > x and offset[1] < y + 1:
-            texture = textures["garage"]
-            screen.blit(pygame.transform.scale(texture, (160, 80)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - 48))
-
-            if not floor_underneath:
-                parachute_texture = textures["shop_parachute"]
-                screen.blit(pygame.transform.scale(parachute_texture, (160, 160)), (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - 208))
-
-class Prop:
-    def __init__(self, texture, position, map, player):
+#Class pour les objets avec de la gravité (garabe et arbres) (je savais pas comment l'appelé)
+class Rigidbody: 
+    def __init__(self, texture, position, map):
         self.texture = pygame.transform.scale(texture, (texture.get_width() * 2, texture.get_height() * 2))
         self.position = position
 
         self.map = map
-        self.player = player
 
         self.falling_cooldown = 0
 
     def tick(self):
         x, y = self.position
-        width = self.texture.get_width() // 32 + (self.texture.get_width() % 2 > 0)
+        width = self.texture.get_width() // 32 + (self.texture.get_width() % 2 > 0) #Récupère la taille de l'objet en tuile
 
-        floor_underneath = False
+        floor_underneath = False #Vérifie si il y a du sol en dessous
         for i in range(width):
             if not self.map.tiles[x + i][y + 1] in ["cave", "scaffolding"]:
                 floor_underneath = True
                 self.falling_cooldown = 1
 
-        if self.falling_cooldown > 0:
+        if self.falling_cooldown > 0: #Même fonctionnement que pour le joueur avec la gravité
             self.falling_cooldown -= .25
         elif not floor_underneath:
             self.position = (x, y + 1)
             self.falling_cooldown = 1
 
-        offset = self.player.get_camera_offset()
+        offset = drill.get_camera_offset()
         screensize = screen.get_size()
 
-        if offset[0] <= x + (width - 1) and offset[0] + screensize[0] // 32 > x and offset[1] < y + 1:
+        if offset[0] <= x + (width - 1) and offset[0] + screensize[0] // 32 > x and offset[1] < y + 1: #fait le rendue
             screen.blit(self.texture, (x * 32 - offset[0] * 32, y * 32 - offset[1] * 32 - (self.texture.get_height() - 32)))
 
-            if not floor_underneath:
+            if not floor_underneath: #rendue du parachute
                 parachute_texture = textures["shop_parachute"]
                 x = x * 32 - offset[0] * 32
                 y = y * 32 - offset[1] * 32  + 32 - self.texture.get_height() - self.texture.get_width()
@@ -455,7 +419,7 @@ class Prop:
 clock = pygame.time.Clock() #Créer une "clock" qui permet de limiter la vitesse d'excution maximal grace à la fonction tick()
 
 level = Map(1024, 1024) #Créer une carte de 1024 * 1024
-shop = ShopBuilding((level.width // 2, 0), level)
+shop = Rigidbody(textures["garage"], (level.width // 2, 0), level)
 drill = Player((level.width // 2, 0), level, shop) #Créer le joueur ayant comme paramètre la carte
 hud = Interface(drill) #Créer une interface avec différentes barres (comme) le fuel) et compteurs (comme le gold)
 
@@ -463,7 +427,7 @@ trees = []
 i = 0
 while i < 1013:
     i = random.randint(i + 4, i + 10)
-    trees.append(Prop(textures["tree"], [i, 0], level, drill))
+    trees.append(Rigidbody(textures["tree"], (i, 0), level))
  
 boutons = [
     Button(textures["buy"], [103, 632], 20, speed_button, False, drill),

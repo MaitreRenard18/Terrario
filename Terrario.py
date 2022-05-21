@@ -471,6 +471,3 @@ while running: #Boucle principal qui execute toutes les fonctions à chaques fra
     for event in pygame.event.get(): #Permet d'arrêter la boucle (Et donc le jeu si la fenêtre est fermée)
         if event.type == pygame.QUIT:
             running = False
-
-#Lignes par Lucas: 200
-#Lignes par Ugo: 140

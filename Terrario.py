@@ -21,6 +21,10 @@ for file in os.listdir("{}\Textures".format(os.getcwd())): #Récupère toute les
         image = pygame.image.load(path) #Charge l'image
 
         textures[file_name] = image #Ajoute une l'image dans le dictionnaire texture
+        
+#Son
+pygame.mixer.init()
+pygame.mixer.music.load('Music/house_theme.mp3')
 
 #Son
 pygame.mixer.init()

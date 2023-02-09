@@ -3,8 +3,8 @@
 </p>
 
 # Trailer
-Vous pouvez voir ci dessous, le trailer du jeu:
-https://streamable.com/rnrf5f
+Vous pouvez voir le trailer du jeu <a href="https://streamable.com/rnrf5f">ici.</a>
+
 
 # But du jeu
 

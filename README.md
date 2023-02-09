@@ -10,7 +10,7 @@ https://streamable.com/rnrf5f
 
 Terrario est un jeu basé sur le minage dans un monde pixelisé. Votre but, est ici de miner un maximum de minerais, avant que le fuel présent dans votre machine, se vide. En minant des minerais, vous gagnerez de l'argent, que vous pourrez dépenser dans le garage, pour améliorer les capacités du drill. Plus le drill est amélioré, plus il ira vite et loin, et donc il pourra récupérer de plus en plus de minerais rares.
 
-#Gagner de l'argent
+# Gagner de l'argent
 
 Les minerais rapportent différentes sommes d'argent selon la rareté : 1g pour le charbon 2g pour le fer 4g pour l'or 8g pour le diamant 15g pour le rubi. Evidemment, plus le minerai miné est profond ou rare, plus il rapportera d'argent.
 

@@ -4,7 +4,7 @@
 
 # Trailer
 Vous pouvez voir le trailer du jeu <a href="https://streamable.com/rnrf5f">ici.</a>
-[Video](https://streamable.com/rnrf5f)
+[Video](https://streamable.com/rnrf5f](https://youtu.be/dRZSghDU23Q))
 
 # But du jeu
 
